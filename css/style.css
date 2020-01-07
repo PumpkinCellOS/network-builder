@@ -1,0 +1,77 @@
+/* Font face */
+@font-face 
+{
+	font-family: segoeui;
+	src: url(/networkbuilder/fonts/segoeui.ttf);
+}
+
+/* Main */
+body
+{
+	font-family: "segoeui", sans-sherif;
+	padding: 0;
+	margin: 0;
+}
+#menu 
+{
+}
+
+/* Menus */
+#option-menu 
+{
+	height: 50px;
+	background-color: #ddf;
+	border-bottom: 1px solid #000;
+}
+#object-menu 
+{
+	height: 50px;
+	background-color: #ddf;
+	border-bottom: 1px solid #000;
+}
+
+/* Option Menu */
+#options-file 
+{
+	float: left;
+	width: 33%;
+	text-align: left;
+}
+#options-objects 
+{
+	margin-left: auto;
+	margin-right: auto;
+	width: 33%;
+	text-align: center;
+}
+#options-program 
+{
+	float: right;
+	width: 33%;
+	text-align: right;
+}
+
+/* Footer */
+#footer 
+{
+	position: absolute;
+	bottom: 0px;
+	width: 100%;
+	border-top: 1px solid #000;
+}
+.footer-left 
+{
+	display: block;
+	float: left;
+	margin-left: 5px;
+}
+.footer-right 
+{
+	display: block;
+	float: right;
+	margin-right: 5px;
+}
+
+/* only for js engine */
+#fv-objcount {}
+#editor {}
