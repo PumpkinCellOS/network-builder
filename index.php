@@ -8,13 +8,13 @@
 		<div id="menu">
 			<div id="option-menu">
 				<div id="options-file"> <!-- new, open, save -->
-				xxx
+				
 				</div>
 				<div id="options-objects"> <!-- devices, cables -->
-				yyy
+				
 				</div>
 				<div id="options-program"> <!-- settings, about, help -->
-				zzz
+				
 				</div>
 			</div>
 			<div id="object-menu"> <!-- objects -->
@@ -26,6 +26,7 @@
 			<div class="footer-left">Objects: <span id="fv-objcount">0</span></div>
 			<div class="footer-right">Network Builder v1.0 | Sppmacd (c) 2020</div>
 		</div>
+		<script src="/networkbuilder/js/main.js"></script>
 		<script src="/networkbuilder/js/ui.js"></script>
 	</body>
 </html>

@@ -33,21 +33,20 @@ body
 /* Option Menu */
 #options-file 
 {
-	float: left;
-	width: 33%;
+	display: inline-block;
+	width: 33.333333%;
 	text-align: left;
 }
 #options-objects 
 {
-	margin-left: auto;
-	margin-right: auto;
-	width: 33%;
+	display: inline-block;
+	width: 32.8%;
 	text-align: center;
 }
 #options-program 
 {
-	float: right;
-	width: 33%;
+	display: inline-block;
+	width: 33.333333%;
 	text-align: right;
 }
 
@@ -70,6 +69,15 @@ body
 	display: block;
 	float: right;
 	margin-right: 5px;
+}
+
+/* Menu Entries */
+.menu-entry
+{
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	margin: 5px;
 }
 
 /* only for js engine */
