@@ -72,12 +72,21 @@ body
 }
 
 /* Menu Entries */
-.menu-entry
+div.menu-entry
 {
 	display: inline-block;
 	width: 40px;
 	height: 40px;
 	margin: 5px;
+	cursor: pointer;
+	border: 1px solid #000;
+	border-radius: 3px;
+  	background-size: cover;
+}
+img.menu-entry
+{
+	max-width: 40px;
+	max-height: 40px;
 }
 
 /* only for js engine */
