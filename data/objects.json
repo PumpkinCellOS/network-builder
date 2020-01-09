@@ -63,8 +63,8 @@
 			"edit": "dialog"
 		}
 	},
-	"objectDefs": [
-		{
+	"objectDefs": {
+		"nb.router": {
 			"id": "nb.router", 
 			"texture": "objects/devices/router",
 			"interfaces": [
@@ -81,7 +81,7 @@
 			],
 			"layer": "3"
 		},
-		{
+		"nb.modem": {
 			"id":"nb.modem", 
 			"texture": "objects/devices/modem",
 			"interfaces": [
@@ -96,7 +96,7 @@
 			],
 			"layer": "0"
 		},
-		{
+		"nb.hub": {
 			"id": "nb.hub",
 			"texture": "objects/devices/hub",
 			"interfaces": [
@@ -107,7 +107,7 @@
 			],
 			"layer": "0"
 		},
-		{
+		"nb.bridge": {
 			"id": "nb.bridge",
 			"texture": "objects/devices/bridge",
 			"interfaces": [
@@ -118,7 +118,7 @@
 			],
 			"layer": "0"
 		},
-		{
+		"nb.switch": {
 			"id": "nb.switch",
 			"texture": "objects/devices/switch",
 			"interfaces": [
@@ -129,7 +129,7 @@
 			],
 			"layer": "0"
 		},
-		{
+		"nb.access_point": {
 			"id": "nb.access_point",
 			"texture": "objects/devices/access_point",
 			"interfaces": [
@@ -143,9 +143,9 @@
 			],
 			"layer": "0"
 		},
-		{
+		"nb.client": {
 			"id": "nb.client",
-			"texture": "objects/devices/client",
+			"texture": "objects/devices/client_workstation",
 			"interfaces": [
 				{
 					"type": "eth",
@@ -163,11 +163,11 @@
 						}
 					]
 				},
-				"texture": "objects/devices/client_printer"
+				"2": {"texture": "objects/devices/client_printer"}
 			},
 			"layer": "6"
 		},
-		{
+		"nb.server": {
 			"id": "nb.server",
 			"interfaces": [
 				{
@@ -188,7 +188,7 @@
 			"layer": "6",
 			"texture": "objects/devices/server"
 		},
-		{
+		"nb.firewall": {
 			"id": "nb.firewall",
 			"interfaces": [
 				{
@@ -199,9 +199,9 @@
 			"layer": "2",
 			"texture": "objects/devices/firewall"
 		},
-		{
+		"nb.cloud": {
 			"id": "nb.cloud",
-			"0": {"texture": "objects/devices/cloud"},
+			"texture": "objects/devices/cloud",
 			"interfaces": [
 				{
 					"type": "*",
@@ -210,7 +210,7 @@
 			],
 			"layer": "2"
 		}
-	],
+	},
 	"menu": {
 		"devices": {
 			"entries":{

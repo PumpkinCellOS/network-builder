@@ -17,6 +17,7 @@ var optionsMenu = {
 var currentObjectMenu = null;
 var currentSubObjectMenu = null;
 var currentSubObjectLabel = null;
+var currentMovedObject = null;
 
 function hideSubMenu() {
 	if(currentSubObjectMenu != null)
@@ -40,10 +41,36 @@ function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 	var sub = me.subObjects;
 	if(sub == undefined)
 	{
-		//add drag & drop
+		//add additional menu hiding when clicked
 		entryObject.addEventListener("click", function() {
 			if(objectData.menu[category] != undefined)
 				hideSubMenu();
+		});
+		
+		//add drag & drop
+		entryObject.addEventListener("mousedown", function(event) {
+			
+			this.classList.add("om-moving");
+		});
+		entryObject.addEventListener("mouseup", function() {
+			this.classList.remove("om-moving");
+		});
+		entryObject.addEventListener("mousemove", function() {
+			if(this.classList.contains("om-moving")) {
+				var newObj = createObjectDiv(me, [event.clientX, event.clientY]);
+				
+				if(newObj != null) {
+					newObj.addEventListener("mousedown", function(event) {
+						startMovingObject(this);
+					});
+					newObj.addEventListener("mouseup", function(event) {
+						stopMovingObject(this);
+					});
+					startMovingObject(newObj);
+					document.getElementById("edit-place").appendChild(newObj);
+				}
+			}
+			this.classList.remove("om-moving");
 		});
 	}
 	else
@@ -67,8 +94,51 @@ function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 		});
 	}
 }
+function startMovingObject(obj)
+{
+	obj.classList.add("oo-moving");
+	currentMovedObject = obj;
+}
+function stopMovingObject()
+{
+	if(currentMovedObject != null)
+	{
+		currentMovedObject.classList.remove("oo-moving");
+		currentMovedObject = null;
+	}
+}
 function addMenuCableListener(entryObject, category, menuEntryN, catObj) {
 	//...
+}
+function createObjectDiv(objectMenuEntry, position)
+{
+	if(objectMenuEntry.create == undefined)
+		return null;
+	var objid = objectMenuEntry.create[0].name;
+	var pos = objectMenuEntry.create[0].pos;
+	var type = objectMenuEntry.create[0].type;
+	
+	var entryInDefs = objectData.objectDefs[objid];
+	
+	var texture = entryInDefs.texture;
+	
+	var objTypes = entryInDefs.types;
+	if(objTypes != undefined)
+	{
+		var ot = objTypes[type];
+		if(ot != undefined)
+		{
+			var p1 = objTypes[type].texture; if(p1 != undefined) texture = p1;
+		}
+	}
+	
+	var div = document.createElement("div");
+	div.classList = ["ov-obj"];
+	div.unselectable = "on";
+	div.style.left = (pos[0] + position[0] - 25) + "px";
+	div.style.top = (pos[1] + position[1] - 25) + "px";
+	div.innerHTML += '<img draggable="false" width="100%" height="100%" src="img/' + texture + '.png"></img>';
+	return div;
 }
 function addMenuEntryToMenu(menuId, entryImage, label) {
 	if(label == undefined)
@@ -78,8 +148,10 @@ function addMenuEntryToMenu(menuId, entryImage, label) {
 	var obj = document.getElementById(menuId);
 	var menuEntryObj = document.createElement("div");
 	menuEntryObj.classList = ["menu-entry"];
-	menuEntryObj.innerHTML += '<img width="100%" height="100%" src="img/' + entryImage + '" title="' + label + '"></img>';
-	obj.appendChild(menuEntryObj);
+	menuEntryObj.innerHTML += '<img draggable="false" width="100%" height="100%" src="img/' + entryImage + '" title="' + label + '"></img>';
+	menuEntryObj.unselectable = "on";
+	if(obj != undefined)
+		obj.appendChild(menuEntryObj);
 	return menuEntryObj;
 }
 function addMenuEntry(menu, entry, prefix="options-") {
@@ -173,6 +245,16 @@ function addMenuEntries() {
 			addObjectToMenu(cat, dev, devlist, objectData.menu[cat]);
 		}
 	}
+	// Register drag&drop event to editor
+	document.getElementById("editor").addEventListener("mousemove", function(event) {
+		if(currentMovedObject != null && currentMovedObject.classList.contains("oo-moving")) {
+			currentMovedObject.style.left = (event.clientX - 25) + "px";
+			currentMovedObject.style.top = (event.clientY - 25) + "px";
+		}
+	});
+	document.getElementById("editor").addEventListener("mouseup", function(event) {
+		stopMovingObject();
+	});
 }
 
 function updateUI() {
