@@ -1,0 +1,284 @@
+{
+	"classes": {
+		"ip": {
+			"fields": [
+				{
+					"type": "Array", 
+					"count": "4"
+				}
+			], 
+			"draw": "str_pattern", 
+			"drawPattern": "%d.%d.%d.%d", 
+			"parsePattern": "(\\d+).(\\d+).(\\d+).(\\d+)",
+			"edit": "text"
+		},
+		"ip+mask": {
+			"fields": [
+				{
+					"type": "ip",
+					"name": "ip"
+				},
+				{
+					"type": "Integer",
+					"name": "mask"
+				}
+			], 
+			"draw": "str_pattern", 
+			"drawPattern": "%s/%d", 
+			"parsePattern": ".*\/\\d*", 
+			"edit": "text"
+		},
+		"iface_port": {
+			"fields": [
+				{
+					"type": "Integer",
+					"name": "iface_port"
+				},
+				{
+					"type": "Integer",
+					"name": "iface_id"
+				}
+			],
+			"draw": "str_pattern",
+			"drawPattern": "%d at %d",
+			"edit": "event",
+			"editEvent": ""
+		},
+		"iptable": {
+			"fields": [
+				{
+					"type": "ip+mask",
+					"name": "address"
+				},
+				{
+					"type": "ip",
+					"name": "next_router"
+				},
+				{
+					"type": "iface_port",
+					"name": "interface_port"
+				}
+			], 
+			"draw": "table", 
+			"edit": "dialog"
+		}
+	},
+	"objectDefs": [
+		{
+			"id": "nb.router", 
+			"texture": "objects/devices/router",
+			"interfaces": [
+				{
+					"type": "eth",
+					"ios": "4"
+				}
+			], 
+			"options": [
+				{
+					"type": "iptable",
+					"name": "routing_table"
+				}
+			],
+			"layer": "3"
+		},
+		{
+			"id":"nb.modem", 
+			"texture": "objects/devices/modem",
+			"interfaces": [
+				{
+					"type": "eth",
+					"ios": "1"
+				},
+				{
+					"type": "rad",
+					"ios": "1"
+				}
+			],
+			"layer": "0"
+		},
+		{
+			"id": "nb.hub",
+			"texture": "objects/devices/hub",
+			"interfaces": [
+				{
+					"type": "eth",
+					"ios": "8"
+				}
+			],
+			"layer": "0"
+		},
+		{
+			"id": "nb.bridge",
+			"texture": "objects/devices/bridge",
+			"interfaces": [
+				{
+					"type": "eth",
+					"ios": "2"
+				}
+			],
+			"layer": "0"
+		},
+		{
+			"id": "nb.switch",
+			"texture": "objects/devices/switch",
+			"interfaces": [
+				{
+					"type": "eth",
+					"ios": "8"
+				}
+			],
+			"layer": "0"
+		},
+		{
+			"id": "nb.access_point",
+			"texture": "objects/devices/access_point",
+			"interfaces": [
+				{
+					"type": "eth",
+					"ios": "1"
+				},
+				{
+					"type": "wlan"
+				}
+			],
+			"layer": "0"
+		},
+		{
+			"id": "nb.client",
+			"texture": "objects/devices/client",
+			"interfaces": [
+				{
+					"type": "eth",
+					"ios": "1"
+				}
+			],
+			"types": {
+				"0": {"texture": "objects/devices/client_workstation"},
+				"1": {
+					"texture": "objects/devices/client_laptop",
+					"interfaces": [
+						{
+							"type": "wlan",
+							"ios": "1"
+						}
+					]
+				},
+				"texture": "objects/devices/client_printer"
+			},
+			"layer": "6"
+		},
+		{
+			"id": "nb.server",
+			"interfaces": [
+				{
+					"type": "eth",
+					"ios": "2"
+				}
+			],
+			"options": [
+				{
+					"type": "bool",
+					"name": "dhcp_listen"
+				},
+				{
+					"type": "bool",
+					"name": "dns_listen"
+				}
+			],
+			"layer": "6",
+			"texture": "objects/devices/server"
+		},
+		{
+			"id": "nb.firewall",
+			"interfaces": [
+				{
+					"type": "eth",
+					"ios": "2"
+				}
+			],
+			"layer": "2",
+			"texture": "objects/devices/firewall"
+		},
+		{
+			"id": "nb.cloud",
+			"0": {"texture": "objects/devices/cloud"},
+			"interfaces": [
+				{
+					"type": "*",
+					"ios": "1"
+				}
+			],
+			"layer": "2"
+		}
+	],
+	"menu": {
+		"devices": {
+			"entries":{
+				"test": {"name": "test", "debug": "true"},
+				"router": {
+					"name": "router", 
+					"create": [{"name": "nb.router", "pos": [0,0]}]
+				},
+				"modem": {
+					"name": "modem",
+					"create": [{"name": "nb.modem", "pos": [0,0]}]
+				},
+				"hub": {
+					"name": "hub",
+					"create": [{"name": "nb.hub", "pos": [0,0]}]
+				},
+				"bridge": {
+					"name": "bridge",
+					"create": [{"name": "nb.bridge", "pos": [0,0]}]
+				},
+				"switch": {
+					"name": "switch",
+					"create": [{"name": "nb.switch", "pos": [0,0]}]
+				},
+				"access_point": {
+					"name": "access point",
+					"create": [{"name": "nb.access_point", "pos": [0,0]}]
+				},
+				"client": {
+					"name": "client",
+					"texture": "objects/devices/client_workstation",
+					"subObjects": {
+						"entries": {
+							"workstation": {
+								"name": "workstation",
+								"create": [{"name": "nb.client", "pos": [0,0], "type": 0}]
+							},
+							"laptop": {
+								"name": "laptop",
+								"create": [{"name": "nb.client", "pos": [0,0], "type": 1}]
+							},
+							"printer": {
+								"name": "printer",
+								"create": [{"name": "nb.client", "pos": [0,0], "type": 2}]
+							},
+							"server": {
+								"name": "server",
+								"create": [{"name": "nb.server", "pos": [0,0]}]
+							}
+						}
+					}
+				},
+				"firewall": {
+					"name": "firewall",
+					"create": [{"name": "nb.firewall", "pos": [0,0]}]
+				},
+				"cloud": {
+					"name": "cloud",
+					"create": [{"name": "nb.cloud", "pos": [0,0]}]
+				},
+				"group": {
+					"name": "grouping"
+				}
+			},
+			"eventType": "dragdrop"
+		},
+		"cables": {
+			"eventType": "doubleplace"
+		}
+	}
+}

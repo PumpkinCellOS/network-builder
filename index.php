@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<link rel="stylesheet" href="/networkbuilder/css/style.css"/>
+		<link rel="stylesheet" href="css/style.css"/>
 		<meta charset="utf-8">
 		<title>Network Builder</title>
 	</head>
@@ -19,6 +19,8 @@
 			</div>
 			<div id="object-menu"> <!-- objects -->
 			</div>
+			<div id="submenus">
+			</div>
 		</div>
 		<div id="editor">
 		</div>
@@ -26,7 +28,7 @@
 			<div class="footer-left">Objects: <span id="fv-objcount">0</span></div>
 			<div class="footer-right">Network Builder v1.0 | Sppmacd (c) 2020</div>
 		</div>
-		<script src="/networkbuilder/js/main.js"></script>
-		<script src="/networkbuilder/js/ui.js"></script>
+		<script src="js/main.js"></script>
+		<script src="js/ui.js"></script>
 	</body>
 </html>
