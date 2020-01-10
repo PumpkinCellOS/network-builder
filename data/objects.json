@@ -155,7 +155,7 @@
 			"types": {
 				"0": {"texture": "objects/devices/client_workstation"},
 				"1": {
-					"texture": "objects/devices/client_laptop",
+					"texture": "objects/devices/laptop",
 					"interfaces": [
 						{
 							"type": "wlan",
@@ -163,7 +163,7 @@
 						}
 					]
 				},
-				"2": {"texture": "objects/devices/client_printer"}
+				"2": {"texture": "objects/devices/printer"}
 			},
 			"layer": "6"
 		},
@@ -246,7 +246,8 @@
 						"entries": {
 							"workstation": {
 								"name": "workstation",
-								"create": [{"name": "nb.client", "pos": [0,0], "type": 0}]
+								"create": [{"name": "nb.client", "pos": [0,0], "type": 0}],
+								"texture": "objects/devices/client_workstation"
 							},
 							"laptop": {
 								"name": "laptop",
