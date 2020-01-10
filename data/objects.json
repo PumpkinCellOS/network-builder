@@ -65,14 +65,15 @@
 	},
 	"objectDefs": {
 		"nb.router": {
-			"id": "nb.router", 
+			"id": "nb.router",
+			"type": "device",
 			"texture": "objects/devices/router",
-			"interfaces": [
-				{
+			"interfaces": {
+				"eth": {
 					"type": "eth",
 					"ios": "4"
 				}
-			], 
+			}, 
 			"options": [
 				{
 					"type": "iptable",
@@ -83,85 +84,91 @@
 		},
 		"nb.modem": {
 			"id":"nb.modem", 
+			"type": "device",
 			"texture": "objects/devices/modem",
-			"interfaces": [
-				{
+			"interfaces": {
+				"eth": {
 					"type": "eth",
 					"ios": "1"
 				},
-				{
+				"rad": {
 					"type": "rad",
 					"ios": "1"
 				}
-			],
+			},
 			"layer": "0"
 		},
 		"nb.hub": {
 			"id": "nb.hub",
+			"type": "device",
 			"texture": "objects/devices/hub",
-			"interfaces": [
-				{
+			"interfaces": {
+				"eth": {
 					"type": "eth",
 					"ios": "8"
 				}
-			],
+			},
 			"layer": "0"
 		},
 		"nb.bridge": {
 			"id": "nb.bridge",
+			"type": "device",
 			"texture": "objects/devices/bridge",
-			"interfaces": [
-				{
+			"interfaces": {
+				"eth": {
 					"type": "eth",
 					"ios": "2"
 				}
-			],
+			},
 			"layer": "0"
 		},
 		"nb.switch": {
 			"id": "nb.switch",
+			"type": "device",
 			"texture": "objects/devices/switch",
-			"interfaces": [
-				{
+			"interfaces": {
+				"eth": {
 					"type": "eth",
 					"ios": "8"
 				}
-			],
+			},
 			"layer": "0"
 		},
 		"nb.access_point": {
 			"id": "nb.access_point",
+			"type": "device",
 			"texture": "objects/devices/access_point",
-			"interfaces": [
-				{
+			"interfaces": {
+				"eth": {
 					"type": "eth",
 					"ios": "1"
 				},
-				{
+				"wlan": {
 					"type": "wlan"
 				}
-			],
+			},
 			"layer": "0"
 		},
 		"nb.client": {
 			"id": "nb.client",
+			"type": "device",
 			"texture": "objects/devices/client_workstation",
-			"interfaces": [
-				{
+			"interfaces": {
+				"eth": {
 					"type": "eth",
 					"ios": "1"
 				}
-			],
+			},
 			"types": {
 				"0": {"texture": "objects/devices/client_workstation"},
 				"1": {
 					"texture": "objects/devices/laptop",
-					"interfaces": [
-						{
+					"interfaces": {
+						"wlan": {
 							"type": "wlan",
 							"ios": "1"
 						}
-					]
+					}
 				},
 				"2": {"texture": "objects/devices/printer"}
 			},
@@ -169,12 +176,13 @@
 		},
 		"nb.server": {
 			"id": "nb.server",
-			"interfaces": [
-				{
+			"type": "device",
+			"interfaces": {
+				"eth": {
 					"type": "eth",
 					"ios": "2"
 				}
-			],
+			},
 			"options": [
 				{
 					"type": "bool",
@@ -190,25 +198,57 @@
 		},
 		"nb.firewall": {
 			"id": "nb.firewall",
-			"interfaces": [
-				{
+			"type": "device",
+			"interfaces": {
+				"eth": {
 					"type": "eth",
 					"ios": "2"
 				}
-			],
+			},
 			"layer": "2",
 			"texture": "objects/devices/firewall"
 		},
 		"nb.cloud": {
 			"id": "nb.cloud",
+			"type": "device",
 			"texture": "objects/devices/cloud",
-			"interfaces": [
-				{
+			"interfaces": {
+				"*": {
 					"type": "*",
 					"ios": "1"
 				}
-			],
+			},
 			"layer": "2"
+		},
+		"nb.ethernet": {
+			"id": "nb.ethernet",
+			"type": "cable",
+			"interfaces": ["eth", "eth"],
+			"display": {"circle": "empty", "cableStyle": "solid", "cableShape": "straight"}
+		},
+		"nb.crossed_ethernet": {
+			"id": "nb.crossed_ethernet",
+			"type": "cable",
+			"interfaces": ["eth", "eth"],
+			"display": {"circle": "full", "cableStyle": "dashed", "cableShape": "straight"}
+		},
+		"nb.serial": {
+			"id": "nb.serial",
+			"type": "cable",
+			"interfaces": ["serial", "serial"],
+			"display": {"circle": "full", "cableStyle": "solid", "cableShape": "broken"}
+		},
+		"nb.radio": {
+			"id": "nb.radio",
+			"type": "cable",
+			"interfaces": ["rad", "rad"],
+			"display": {"circle": "empty", "cableStyle": "dashed", "cableShape": "broken"}
+		},
+		"nb.optical_fibre": {
+			"id": "nb.optical_fibre",
+			"type": "cable",
+			"interfaces": ["eth", "eth"],
+			"display": {"circle": "full", "cableStyle": "solid", "cableShape": "straight"}
 		}
 	},
 	"menu": {
@@ -279,6 +319,28 @@
 			"eventType": "dragdrop"
 		},
 		"cables": {
+			"entries": {
+				"ethernet": {
+					"name": "ethernet",
+					"create": [{"name": "nb.ethernet", "pos": [0,0]}]
+				},
+				"crossed_ethernet": {
+					"name": "crossed_Ethernet",
+					"create": [{"name": "nb.crossed_ethernet", "pos": [0,0]}]
+				},
+				"serial": {
+					"name": "serial",
+					"create": [{"name": "nb.serial", "pos": [0,0]}]
+				},
+				"radio": {
+					"name": "radio",
+					"create": [{"name": "nb.radio", "pos": [0,0]}]
+				},
+				"optical_fibre": {
+					"name": "optical_fibre",
+					"create": [{"name": "nb.optical_fibre", "pos": [0,0]}]
+				}
+			},
 			"eventType": "doubleplace"
 		}
 	}

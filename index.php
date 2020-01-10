@@ -28,7 +28,7 @@
 		</div>
 		<div id="footer">
 			<div class="footer-left">Objects: <span id="fv-objcount">0</span></div>
-			<div class="footer-right">Network Builder v1.0 | Sppmacd (c) 2020</div>
+			<div class="footer-right">Network Builder v1.0 (beta) | Sppmacd (c) 2020</div>
 		</div>
 		<script src="js/main.js"></script>
 		<script src="js/ui.js"></script>

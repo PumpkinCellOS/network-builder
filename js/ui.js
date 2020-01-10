@@ -17,7 +17,13 @@ var optionsMenu = {
 var currentObjectMenu = null;
 var currentSubObjectMenu = null;
 var currentSubObjectLabel = null;
+
 var currentMovedObject = null;
+var currentMovedObjectId = null;
+
+var currentCableMenuLabel = null;
+var currentCableObject = null;
+var currentCableConnObj = null;
 
 function hideSubMenu() {
 	if(currentSubObjectMenu != null)
@@ -36,11 +42,18 @@ function addMenuSwitchListener(entryObject, menuName) {
 function addMenuTriggerListener(entryObject, trigger) {
 	entryObject.addEventListener("click", trigger);
 }
+function cancelCableConnection()
+{
+	if(currentCableMenuLabel != null)
+		currentCableMenuLabel.classList.remove("oo-current");
+	currentCableMenuLabel = null;
+	currentCableObject = null;
+	currentCableConnObj = null;
+}
 function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 	var me =  catObj.entries[menuEntryN];
 	var sub = me.subObjects;
-	if(sub == undefined)
-	{
+	if(sub == undefined) {
 		//add additional menu hiding when clicked
 		entryObject.addEventListener("click", function() {
 			if(objectData.menu[category] != undefined)
@@ -48,42 +61,100 @@ function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 		});
 		
 		//add drag & drop
-		entryObject.addEventListener("mousedown", function(event) {
-			
-			this.classList.add("om-moving");
-		});
-		entryObject.addEventListener("mouseup", function() {
-			this.classList.remove("om-moving");
-		});
-		entryObject.addEventListener("mousemove", function() {
-			if(this.classList.contains("om-moving")) {
-				var newObj = createObjectDiv(me, [event.clientX, event.clientY]);
-				
-				if(newObj != null) {
-					newObj.addEventListener("mousedown", function(event) {
-						startMovingObject(this);
-					});
-					newObj.addEventListener("mouseup", function(event) {
-						stopMovingObject(this);
-					});
-					startMovingObject(newObj);
-					document.getElementById("edit-place").appendChild(newObj);
+		if(me.create != undefined) {
+			entryObject.addEventListener("mousedown", function(event) {
+				this.classList.add("om-moving");
+			});
+			entryObject.addEventListener("mouseup", function() {
+				this.classList.remove("om-moving");
+			});
+			entryObject.addEventListener("mousemove", function() {
+				if(this.classList.contains("om-moving")) {
+					var newObj = createObjectDiv(me, [event.clientX, event.clientY]);
+					var entryInDefs = objectData.objectDefs[me.create[0].name];
+					entryInDefs.pos = [event.clientX, event.clientY];
+					entryInDefs.idx = currentMap.objects.length;
+					
+					// create object on map
+					currentMap.objects.push(entryInDefs);
+					cancelCableConnection();
+					
+					if(newObj != null) {
+						newObj.addEventListener("mousedown", function(event) {
+							startMovingObject(this);
+						});
+						newObj.addEventListener("mouseup", function(event) {
+							stopMovingObject(this);
+						});
+						newObj.addEventListener("click", function() {
+							// try connect by cable
+							if(currentCableObject != null) {
+								if(currentCableConnObj == null) {
+									// check if interface valid
+									currentCableConnObj = entryInDefs.idx;
+								} else {
+									// check if not connecting to self
+									if(currentCableConnObj == entryInDefs.idx) {
+										alert("Couldn't make connection - cannot connect to self");
+										cancelCableConnection();
+										return;
+									}
+									// check if interface valid
+									var cableEntryDefs = objectData.objectDefs[currentCableObject.id];
+									cableEntryDefs.ends = [currentCableConnObj, entryInDefs.idx];
+									
+									// update connection count for each object
+									var obj0 = currentMap.objects[cableEntryDefs.ends[0]];
+									var obj0iface = obj0.interfaces[cableEntryDefs.interfaces[0]];
+									if(obj0iface == undefined) obj0iface0 = obj0.interfaces["*"];
+									var obj1 = currentMap.objects[cableEntryDefs.ends[1]];
+									var obj1iface = obj1.interfaces[cableEntryDefs.interfaces[1]];
+									if(obj1iface == undefined) obj1iface1 = obj1.interfaces["*"];
+									
+									// abort connecting if interfaces not found
+									if(obj0iface == undefined || 
+									obj1iface == undefined) {
+										alert("Couldn't make connection - not matching interfaces");
+										cancelCableConnection();
+										return;
+									}
+									if(obj0iface.count + 1 <= obj0iface.ios) 
+										obj0iface.count++; 
+									else if(obj0iface.count == undefined)
+										obj0iface.count = 1;
+									else {
+										alert("Couldn't make connection - too few ports in interface (max=" + obj0iface.ios + ", iface=" + obj1iface.type + ")");
+										cancelCableConnection();
+										return;
+									}
+									if(obj1iface.count + 1 <= obj1iface.ios) 
+										obj1iface.count++;
+									else if(obj1iface.count == undefined)
+										obj1iface.count = 1;
+									else {
+										alert("Couldn't make connection - too few ports in interface (max=" + obj0iface.ios + ", iface=" + obj1iface.type + ")");
+										cancelCableConnection();
+										return;
+									}
+									currentMap.objects.push(cableEntryDefs);
+									currentCableConnObj = null; //not cancelling fully to enable connecting a few devices without clicking cable icon every time
+								}
+							}
+						});
+						startMovingObject(newObj);
+						document.getElementById("edit-place").appendChild(newObj);
+					}
 				}
-			}
-			this.classList.remove("om-moving");
-		});
-	}
-	else
-	{
+				this.classList.remove("om-moving");
+			});
+		}
+	} else {
 		//add display additional menu
 		entryObject.addEventListener("click", function() {
 			var curr = document.getElementById("oms-" + menuEntryN);
-			if(currentSubObjectMenu == curr)
-			{
+			if(currentSubObjectMenu == curr) {
 				hideSubMenu();
-			}
-			else
-			{
+			} else {
 				if(currentSubObjectMenu != null)
 					hideMenu(currentSubObjectMenu, currentSubObjectLabel);
 				document.getElementById("submenus").style.display = "block";
@@ -94,24 +165,27 @@ function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 		});
 	}
 }
-function startMovingObject(obj)
-{
+function addMenuCableListener(entryObject, category, menuEntryN, catObj) {
+	var me =  catObj.entries[menuEntryN];
+	entryObject.addEventListener("click", function() {
+		cancelCableConnection();
+		currentCableMenuLabel = this;
+		currentCableMenuLabel.classList.add("oo-current");
+		currentCableObject = objectData.objectDefs[me.create[0].name];
+	});
+}
+function startMovingObject(obj, id) {
 	obj.classList.add("oo-moving");
 	currentMovedObject = obj;
+	currentMovedObjectId = id;
 }
-function stopMovingObject()
-{
-	if(currentMovedObject != null)
-	{
+function stopMovingObject() {
+	if(currentMovedObject != null) {
 		currentMovedObject.classList.remove("oo-moving");
 		currentMovedObject = null;
 	}
 }
-function addMenuCableListener(entryObject, category, menuEntryN, catObj) {
-	//...
-}
-function createObjectDiv(objectMenuEntry, position)
-{
+function createObjectDiv(objectMenuEntry, position) {
 	if(objectMenuEntry.create == undefined)
 		return null;
 	var objid = objectMenuEntry.create[0].name;
@@ -123,11 +197,9 @@ function createObjectDiv(objectMenuEntry, position)
 	var texture = entryInDefs.texture;
 	
 	var objTypes = entryInDefs.types;
-	if(objTypes != undefined)
-	{
+	if(objTypes != undefined) {
 		var ot = objTypes[type];
-		if(ot != undefined)
-		{
+		if(ot != undefined) {
 			var p1 = objTypes[type].texture; if(p1 != undefined) texture = p1;
 		}
 	}
@@ -159,14 +231,12 @@ function addMenuEntry(menu, entry, prefix="options-") {
 }
 
 //objectMenu - menu to be displayed, objectLabel - menu entry to be highlighted
-function showMenu(objectMenu, objectLabel)
-{
+function showMenu(objectMenu, objectLabel) {
 	objectMenu.style.display = "block";
 	objectMenu.classList.add("om-current");
 	objectLabel.classList.add("oo-current");
 }
-function hideMenu(objectMenu, objectLabel)
-{
+function hideMenu(objectMenu, objectLabel) {
 	objectMenu.style.display = "none";
 	objectMenu.classList.remove("om-current");
 	objectLabel.classList.remove("oo-current");
