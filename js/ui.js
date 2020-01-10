@@ -23,7 +23,7 @@ var currentMovedObjectId = null;
 
 var currentCableMenuLabel = null;
 var currentCableObject = null;
-var currentCableConnObj = null;
+var currentCableConnObj = undefined;
 
 function hideSubMenu() {
 	if(currentSubObjectMenu != null)
@@ -48,7 +48,16 @@ function cancelCableConnection()
 		currentCableMenuLabel.classList.remove("oo-current");
 	currentCableMenuLabel = null;
 	currentCableObject = null;
-	currentCableConnObj = null;
+	currentCableConnObj = undefined;
+}
+function drawCable(cable) {
+	var ctx = document.getElementById("draw-place").getContext("2d");
+	var obj0 = currentMap.objects[cable.ends[0]];
+	var obj1 = currentMap.objects[cable.ends[1]];
+	ctx.beginPath();
+	ctx.moveTo(obj0.pos[0] + 25, obj0.pos[1] + 125);
+	ctx.lineTo(obj1.pos[0] + 25, obj1.pos[1] + 125);
+	ctx.stroke();
 }
 function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 	var me =  catObj.entries[menuEntryN];
@@ -63,6 +72,7 @@ function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 		//add drag & drop
 		if(me.create != undefined) {
 			entryObject.addEventListener("mousedown", function(event) {
+				cancelCableConnection();
 				this.classList.add("om-moving");
 			});
 			entryObject.addEventListener("mouseup", function() {
@@ -71,45 +81,53 @@ function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 			entryObject.addEventListener("mousemove", function() {
 				if(this.classList.contains("om-moving")) {
 					var newObj = createObjectDiv(me, [event.clientX, event.clientY]);
-					var entryInDefs = objectData.objectDefs[me.create[0].name];
-					entryInDefs.pos = [event.clientX, event.clientY];
+					var entryInDefs = JSON.parse(JSON.stringify(objectData.objectDefs[me.create[0].name]));
+					entryInDefs.pos = [event.clientX, event.clientY - 100];
 					entryInDefs.idx = currentMap.objects.length;
+					if(me.create[0].type != undefined && entryInDefs.types[me.create[0].type] != undefined)
+					{
+						entryInDefs = Object.assign(entryInDefs, entryInDefs.types[me.create[0].type]);
+					}
+					newObj.idx = entryInDefs.idx;
 					
 					// create object on map
 					currentMap.objects.push(entryInDefs);
-					cancelCableConnection();
 					
 					if(newObj != null) {
 						newObj.addEventListener("mousedown", function(event) {
-							startMovingObject(this);
+							startMovingObject(this, entryInDefs.idx);
 						});
 						newObj.addEventListener("mouseup", function(event) {
-							stopMovingObject(this);
+							stopMovingObject();
+						});
+						newObj.addEventListener("mousemove", function(event) {
+							if(currentMovedObject != null)
+								cancelCableConnection();
 						});
 						newObj.addEventListener("click", function() {
 							// try connect by cable
 							if(currentCableObject != null) {
-								if(currentCableConnObj == null) {
+								if(currentCableConnObj == undefined) {
 									// check if interface valid
-									currentCableConnObj = entryInDefs.idx;
+									currentCableConnObj = this.idx;
 								} else {
 									// check if not connecting to self
-									if(currentCableConnObj == entryInDefs.idx) {
+									if(currentCableConnObj == this.idx) {
 										alert("Couldn't make connection - cannot connect to self");
 										cancelCableConnection();
 										return;
 									}
 									// check if interface valid
-									var cableEntryDefs = objectData.objectDefs[currentCableObject.id];
-									cableEntryDefs.ends = [currentCableConnObj, entryInDefs.idx];
+									var cableEntryDefs = JSON.parse(JSON.stringify(objectData.objectDefs[currentCableObject.id]));
+									cableEntryDefs.ends = [currentCableConnObj, this.idx];
 									
 									// update connection count for each object
 									var obj0 = currentMap.objects[cableEntryDefs.ends[0]];
 									var obj0iface = obj0.interfaces[cableEntryDefs.interfaces[0]];
-									if(obj0iface == undefined) obj0iface0 = obj0.interfaces["*"];
+									if(obj0iface == undefined) obj0iface = obj0.interfaces["*"];
 									var obj1 = currentMap.objects[cableEntryDefs.ends[1]];
 									var obj1iface = obj1.interfaces[cableEntryDefs.interfaces[1]];
-									if(obj1iface == undefined) obj1iface1 = obj1.interfaces["*"];
+									if(obj1iface == undefined) obj1iface = obj1.interfaces["*"];
 									
 									// abort connecting if interfaces not found
 									if(obj0iface == undefined || 
@@ -118,30 +136,38 @@ function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 										cancelCableConnection();
 										return;
 									}
-									if(obj0iface.count + 1 <= obj0iface.ios) 
-										obj0iface.count++; 
-									else if(obj0iface.count == undefined)
+									
+									// check port count in interfaces
+									if(obj0iface.count + 1 > obj0iface.ios) {
+										alert("Couldn't make connection - too few ports in interface (max=" + obj0iface.ios + ", iface=" + obj0iface.type + ")");
+										cancelCableConnection();
+										return;
+									}
+									if(obj1iface.count + 1 > obj1iface.ios) {
+										alert("Couldn't make connection - too few ports in interface (max=" + obj1iface.ios + ", iface=" + obj1iface.type + ")");
+										cancelCableConnection();
+										return;
+									}
+									
+									// change count
+									if(obj0iface.count == undefined)
 										obj0iface.count = 1;
-									else {
-										alert("Couldn't make connection - too few ports in interface (max=" + obj0iface.ios + ", iface=" + obj1iface.type + ")");
-										cancelCableConnection();
-										return;
-									}
-									if(obj1iface.count + 1 <= obj1iface.ios) 
-										obj1iface.count++;
-									else if(obj1iface.count == undefined)
+									else
+										obj0iface.count++;
+									
+									if(obj1iface.count == undefined)
 										obj1iface.count = 1;
-									else {
-										alert("Couldn't make connection - too few ports in interface (max=" + obj0iface.ios + ", iface=" + obj1iface.type + ")");
-										cancelCableConnection();
-										return;
-									}
+									else 
+										obj1iface.count++;
+									
+									// add cable
 									currentMap.objects.push(cableEntryDefs);
-									currentCableConnObj = null; //not cancelling fully to enable connecting a few devices without clicking cable icon every time
+									drawCable(cableEntryDefs);
+									currentCableConnObj = undefined; //not cancelling fully to enable connecting a few devices without clicking cable icon every time
 								}
 							}
 						});
-						startMovingObject(newObj);
+						startMovingObject(newObj, entryInDefs.idx);
 						document.getElementById("edit-place").appendChild(newObj);
 					}
 				}
@@ -151,6 +177,7 @@ function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 	} else {
 		//add display additional menu
 		entryObject.addEventListener("click", function() {
+			cancelCableConnection();
 			var curr = document.getElementById("oms-" + menuEntryN);
 			if(currentSubObjectMenu == curr) {
 				hideSubMenu();
@@ -168,6 +195,10 @@ function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 function addMenuCableListener(entryObject, category, menuEntryN, catObj) {
 	var me =  catObj.entries[menuEntryN];
 	entryObject.addEventListener("click", function() {
+		if(currentCableMenuLabel == this) {
+			cancelCableConnection();
+			return;
+		}
 		cancelCableConnection();
 		currentCableMenuLabel = this;
 		currentCableMenuLabel.classList.add("oo-current");
@@ -183,6 +214,7 @@ function stopMovingObject() {
 	if(currentMovedObject != null) {
 		currentMovedObject.classList.remove("oo-moving");
 		currentMovedObject = null;
+		currentMovedObjectId = null;
 	}
 }
 function createObjectDiv(objectMenuEntry, position) {
@@ -208,7 +240,7 @@ function createObjectDiv(objectMenuEntry, position) {
 	div.classList = ["ov-obj"];
 	div.unselectable = "on";
 	div.style.left = (pos[0] + position[0] - 25) + "px";
-	div.style.top = (pos[1] + position[1] - 25) + "px";
+	div.style.top = (pos[1] + position[1] - 125) + "px";
 	div.innerHTML += '<img draggable="false" width="100%" height="100%" src="img/' + texture + '.png"></img>';
 	return div;
 }
@@ -315,16 +347,6 @@ function addMenuEntries() {
 			addObjectToMenu(cat, dev, devlist, objectData.menu[cat]);
 		}
 	}
-	// Register drag&drop event to editor
-	document.getElementById("editor").addEventListener("mousemove", function(event) {
-		if(currentMovedObject != null && currentMovedObject.classList.contains("oo-moving")) {
-			currentMovedObject.style.left = (event.clientX - 25) + "px";
-			currentMovedObject.style.top = (event.clientY - 25) + "px";
-		}
-	});
-	document.getElementById("editor").addEventListener("mouseup", function(event) {
-		stopMovingObject();
-	});
 }
 
 function updateUI() {
@@ -332,6 +354,34 @@ function updateUI() {
 	hideSubMenu();
 }
 
+function addEvents() {
+	// Register drag&drop event to editor
+	document.getElementById("editor").addEventListener("mousemove", function(event) {
+		if(currentMovedObject != null && currentMovedObject.classList.contains("oo-moving")) {
+			currentMovedObject.style.left = (event.clientX - 25) + "px";
+			currentMovedObject.style.top = (event.clientY - 125) + "px";
+			
+			// update map position
+			var obj = currentMap.objects[currentMovedObjectId];
+			obj.pos = [event.clientX - 25, event.clientY - 125];
+		}
+	});
+	document.getElementById("editor").addEventListener("mouseup", function(event) {
+		stopMovingObject();
+	});
+	
+	// Update canvas size
+	var canvas = document.getElementById("draw-place");
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+	
+	document.defaultView.onresize = function(event) {
+		canvas.width = event.innerWidth;
+		canvas.height = event.innerHeight;
+	};
+}
+
 load();
 addMenuEntries();
 updateUI();
+addEvents()

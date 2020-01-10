@@ -249,6 +249,12 @@
 			"type": "cable",
 			"interfaces": ["eth", "eth"],
 			"display": {"circle": "full", "cableStyle": "solid", "cableShape": "straight"}
+		},
+		"nb.wifi": {
+			"id": "nb.wifi",
+			"type": "cable",
+			"interfaces": ["wlan", "wlan"],
+			"display": {"circle": "empty", "cableStyle": "dashed", "cableShape": "broken"}
 		}
 	},
 	"menu": {
@@ -339,6 +345,10 @@
 				"optical_fibre": {
 					"name": "optical_fibre",
 					"create": [{"name": "nb.optical_fibre", "pos": [0,0]}]
+				},
+				"wifi": {
+					"name": "wi-Fi",
+					"create": [{"name": "nb.wifi", "pos": [0,0]}]
 				}
 			},
 			"eventType": "doubleplace"

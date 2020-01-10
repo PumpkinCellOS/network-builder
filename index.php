@@ -6,6 +6,10 @@
 	</head>
 	<body>
 		<div id="editor">
+			<canvas id="draw-place">
+			</canvas>
+			<div id="edit-place">
+			</div>
 			<div id="menu">
 				<div id="option-menu">
 					<div id="options-file"> <!-- new, open, save -->
@@ -22,8 +26,6 @@
 				</div>
 				<div id="submenus">
 				</div>
-			</div>
-			<div id="edit-place">
 			</div>
 		</div>
 		<div id="footer">
