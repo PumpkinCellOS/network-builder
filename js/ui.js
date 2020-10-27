@@ -50,15 +50,33 @@ function cancelCableConnection()
 	currentCableObject = null;
 	currentCableConnObj = undefined;
 }
-function drawCable(cable) {
-	var ctx = document.getElementById("draw-place").getContext("2d");
+
+function drawCable(ctx, cable) {
 	var obj0 = currentMap.objects[cable.ends[0]];
 	var obj1 = currentMap.objects[cable.ends[1]];
+	ctx.strokeStyle = cable.display.color;
+	if(cable.display.cableStyle == "dashed")
+	  ctx.setLineDash([4]);
+	else
+	  ctx.setLineDash([]);
+	  
 	ctx.beginPath();
 	ctx.moveTo(obj0.pos[0] + 25, obj0.pos[1] + 125);
 	ctx.lineTo(obj1.pos[0] + 25, obj1.pos[1] + 125);
 	ctx.stroke();
 }
+
+function redraw() {
+  var canvas = document.getElementById("draw-place");
+	var ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for(var object of currentMap.objects) {
+    if(object.type == "cable") {
+      drawCable(ctx, object);
+    }
+  }
+}
+
 function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 	var me =  catObj.entries[menuEntryN];
 	var sub = me.subObjects;
@@ -83,6 +101,7 @@ function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 					var newObj = createObjectDiv(me, [event.clientX, event.clientY]);
 					var entryInDefs = JSON.parse(JSON.stringify(objectData.objectDefs[me.create[0].name]));
 					entryInDefs.pos = [event.clientX, event.clientY - 100];
+				  redraw();
 					entryInDefs.idx = currentMap.objects.length;
 					if(me.create[0].type != undefined && entryInDefs.types[me.create[0].type] != undefined)
 					{
@@ -101,8 +120,10 @@ function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 							stopMovingObject();
 						});
 						newObj.addEventListener("mousemove", function(event) {
-							if(currentMovedObject != null)
+							if(currentMovedObject != null) {
 								cancelCableConnection();
+								redraw();
+							}
 						});
 						newObj.addEventListener("click", function() {
 							// try connect by cable
@@ -162,7 +183,7 @@ function addMenuDeviceListener(entryObject, category, menuEntryN, catObj) {
 									
 									// add cable
 									currentMap.objects.push(cableEntryDefs);
-									drawCable(cableEntryDefs);
+									redraw();
 									currentCableConnObj = undefined; //not cancelling fully to enable connecting a few devices without clicking cable icon every time
 								}
 							}
@@ -371,17 +392,19 @@ function addEvents() {
 	});
 	
 	// Update canvas size
-	var canvas = document.getElementById("draw-place");
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
+	var drawPlace = document.getElementById("draw-place");
+	drawPlace.width = window.innerWidth;
+	drawPlace.height = window.innerHeight;
 	
-	document.defaultView.onresize = function(event) {
-		canvas.width = event.innerWidth;
-		canvas.height = event.innerHeight;
+	document.body.onresize = function(event) {
+		drawPlace.width = event.target.innerWidth;
+		drawPlace.height = event.target.innerHeight;
+		redraw();
 	};
 }
 
 load();
 addMenuEntries();
 updateUI();
-addEvents()
+addEvents();
+
