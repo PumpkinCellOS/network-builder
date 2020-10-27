@@ -224,37 +224,37 @@
 			"id": "nb.ethernet",
 			"type": "cable",
 			"interfaces": ["eth", "eth"],
-			"display": {"circle": "empty", "cableStyle": "solid", "cableShape": "straight"}
+			"display": {"circle": "empty", "cableStyle": "solid", "cableShape": "straight", "color": "black"}
 		},
 		"nb.crossed_ethernet": {
 			"id": "nb.crossed_ethernet",
 			"type": "cable",
 			"interfaces": ["eth", "eth"],
-			"display": {"circle": "full", "cableStyle": "dashed", "cableShape": "straight"}
+			"display": {"circle": "full", "cableStyle": "dashed", "cableShape": "straight", "color": "gray"}
 		},
 		"nb.serial": {
 			"id": "nb.serial",
 			"type": "cable",
 			"interfaces": ["serial", "serial"],
-			"display": {"circle": "full", "cableStyle": "solid", "cableShape": "broken"}
+			"display": {"circle": "full", "cableStyle": "solid", "cableShape": "broken", "color": "green"}
 		},
 		"nb.radio": {
 			"id": "nb.radio",
 			"type": "cable",
 			"interfaces": ["rad", "rad"],
-			"display": {"circle": "empty", "cableStyle": "dashed", "cableShape": "broken"}
+			"display": {"circle": "empty", "cableStyle": "dashed", "cableShape": "broken", "color": "blue"}
 		},
 		"nb.optical_fibre": {
 			"id": "nb.optical_fibre",
 			"type": "cable",
 			"interfaces": ["eth", "eth"],
-			"display": {"circle": "full", "cableStyle": "solid", "cableShape": "straight"}
+			"display": {"circle": "full", "cableStyle": "solid", "cableShape": "straight", "color": "orange"}
 		},
 		"nb.wifi": {
 			"id": "nb.wifi",
 			"type": "cable",
 			"interfaces": ["wlan", "wlan"],
-			"display": {"circle": "empty", "cableStyle": "dashed", "cableShape": "broken"}
+			"display": {"circle": "empty", "cableStyle": "dashed", "cableShape": "broken", "color": "cyan"}
 		}
 	},
 	"menu": {
